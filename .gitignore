@@ -1,0 +1,32 @@
+# Build artifacts
+target/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# IDE and OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Output test artifacts
+output/
+bench_results/
+recordings/
+*.ppm
+*.png
