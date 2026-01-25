@@ -1,0 +1,15 @@
+[package]
+name = "shroud-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Core physical constants, mathematical primitives, spectral curves, and sensor models for Shroud"
+
+[dependencies]
+serde = { workspace = true, optional = true }
+bytemuck = { workspace = true }
+
+[features]
+default = ["serde"]
+serde = ["dep:serde"]
