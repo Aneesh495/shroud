@@ -1,0 +1,13 @@
+[package]
+name = "shroud-validator"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Naga-based WGSL static validator, AST inspector, and memory alignment verifier"
+
+[dependencies]
+shroud-core = { path = "../shroud-core" }
+naga = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
