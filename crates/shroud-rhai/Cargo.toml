@@ -1,0 +1,13 @@
+[package]
+name = "shroud-rhai"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Embedded Rhai scripting runtime and scenario orchestration engine for Shroud"
+
+[dependencies]
+shroud-core = { path = "../shroud-core" }
+rhai = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
