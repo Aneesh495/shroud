@@ -1,0 +1,16 @@
+[package]
+name = "shroud-wgpu"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "WebGPU compute pipeline execution harness, bind group caching, and headless dispatch engine"
+
+[dependencies]
+shroud-core = { path = "../shroud-core" }
+shroud-validator = { path = "../shroud-validator" }
+wgpu = { workspace = true }
+bytemuck = { workspace = true }
+pollster = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
