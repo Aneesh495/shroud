@@ -1,0 +1,17 @@
+[package]
+name = "shroud-c"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "C ABI dynamic and static library bindings for Shroud"
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+shroud-core = { path = "../shroud-core" }
+shroud-validator = { path = "../shroud-validator" }
+shroud-rhai = { path = "../shroud-rhai" }
+shroud-wgpu = { path = "../shroud-wgpu" }
+rhai = { workspace = true }
