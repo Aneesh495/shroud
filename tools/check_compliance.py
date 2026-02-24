@@ -76,6 +76,7 @@ def scan_file(filepath: Path):
 
 
 def count_lines():
+    hlsl_lines = 0
     wgsl_lines = 0
     rhai_lines = 0
     rust_lines = 0
@@ -93,18 +94,21 @@ def count_lines():
             except Exception:
                 continue
 
-            if p.suffix == ".wgsl":
+            if p.suffix in (".hlsl", ".hlsli"):
+                hlsl_lines += line_count
+            elif p.suffix == ".wgsl":
                 wgsl_lines += line_count
             elif p.suffix == ".rhai":
                 rhai_lines += line_count
             elif p.suffix == ".rs":
                 rust_lines += line_count
-            elif p.suffix in (".c", ".h"):
+            elif p.suffix in (".c", ".h", ".cpp", ".hpp"):
                 c_lines += line_count
             elif p.suffix == ".py":
                 py_lines += line_count
 
     return {
+        "hlsl": hlsl_lines,
         "wgsl": wgsl_lines,
         "rhai": rhai_lines,
         "rust": rust_lines,
@@ -133,6 +137,7 @@ def main():
     metrics = count_lines()
 
     print(f"Scanned files: {file_count}")
+    print(f"Lines of HLSL:   {metrics['hlsl']:,}")
     print(f"Lines of WGSL:   {metrics['wgsl']:,}")
     print(f"Lines of Rhai:   {metrics['rhai']:,}")
     print(f"Lines of Rust:   {metrics['rust']:,}")

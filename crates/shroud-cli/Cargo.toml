@@ -1,0 +1,21 @@
+[package]
+name = "shroud-cli"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Command-line interface for Shroud: validation, headless GPU execution, and Rhai testing"
+
+[[bin]]
+name = "shroud"
+path = "src/main.rs"
+
+[dependencies]
+shroud-core = { path = "../shroud-core" }
+shroud-validator = { path = "../shroud-validator" }
+shroud-rhai = { path = "../shroud-rhai" }
+shroud-wgpu = { path = "../shroud-wgpu" }
+rhai = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+pollster = { workspace = true }
