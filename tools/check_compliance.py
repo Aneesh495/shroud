@@ -10,6 +10,7 @@ Validates:
 """
 
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -32,6 +33,9 @@ BANNED_WORDS = [
     ]
 ]
 
+# Precompile word boundary regex patterns for banned terms
+BANNED_PATTERNS = [re.compile(r"\b" + re.escape(w) + r"\b", re.IGNORECASE) for w in BANNED_WORDS]
+
 EXCLUDED_DIRS = {
     ".git", "target", "__pycache__", ".venv", "venv", "node_modules", "output"
 }
@@ -41,7 +45,7 @@ EXCLUDED_FILES = {
 }
 
 EXCLUDED_EXTS = {
-    ".png", ".jpg", ".jpeg", ".ico", ".pdf", ".lock", ".bin"
+    ".png", ".jpg", ".jpeg", ".ico", ".pdf", ".lock", ".bin", ".spv"
 }
 
 
@@ -63,14 +67,12 @@ def scan_file(filepath: Path):
             if EM_DASH in line or HTML_EM_DASH in line:
                 violations.append(f"{rel_path}:{idx}: Prohibited em-dash character detected")
 
-    # 2. Banned buzzword check
-    content_lower = content.lower()
-    for word in BANNED_WORDS:
-        if word in content_lower:
-            lines = content.splitlines()
-            for idx, line in enumerate(lines, 1):
-                if word in line.lower():
-                    violations.append(f"{rel_path}:{idx}: Prohibited buzzword '{word}' found")
+    # 2. Banned buzzword check using word boundaries
+    lines = content.splitlines()
+    for idx, line in enumerate(lines, 1):
+        for pattern, word in zip(BANNED_PATTERNS, BANNED_WORDS):
+            if pattern.search(line):
+                violations.append(f"{rel_path}:{idx}: Prohibited buzzword '{word}' found")
 
     return violations
 

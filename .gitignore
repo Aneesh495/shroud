@@ -30,3 +30,4 @@ bench_results/
 recordings/
 *.ppm
 *.png
+*.spv
