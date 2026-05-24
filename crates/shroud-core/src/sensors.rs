@@ -125,7 +125,10 @@ pub struct FmcwConfig {
 }
 
 impl FmcwConfig {
-    /// Computes beat frequencies for up-chirp and down-chirp given target range and radial velocity.
+    /// Computes signed coherent I/Q beat frequencies for up-chirp and down-chirp.
+    ///
+    /// Preserves sign rather than taking absolute value so optical 1550 nm FMCW LiDAR
+    /// receivers (where |f_doppler| can exceed f_range) invert without range-Doppler folding.
     pub fn calculate_beat_frequencies(&self, range_m: f32, radial_velocity_m_s: f32) -> (f32, f32) {
         let c = SPEED_OF_LIGHT as f32;
         let b = self.sweep_bandwidth_hz;
@@ -135,8 +138,8 @@ impl FmcwConfig {
         let f_range = (2.0 * b * range_m) / (c * t_c);
         let f_doppler = (2.0 * radial_velocity_m_s) / lambda;
 
-        let f_up = (f_range - f_doppler).abs();
-        let f_down = (f_range + f_doppler).abs();
+        let f_up = f_range - f_doppler;
+        let f_down = f_range + f_doppler;
 
         (f_up, f_down)
     }
@@ -191,5 +194,33 @@ mod tests {
 
         assert!((est_range - true_range).abs() < 1e-2);
         assert!((est_velocity - true_velocity).abs() < 1e-2);
+    }
+
+    #[test]
+    fn test_fmcw_optical_1550nm_high_doppler_recovery() {
+        // Bug reproduction: At 193.4 THz (1550 nm optical carrier), Doppler frequency
+        // exceeds range beat frequency at short ranges (e.g., 25 m at 12.5 m/s),
+        // causing unsigned `.abs()` beat frequencies to fold and swap range with velocity.
+        let cfg = FmcwConfig {
+            center_frequency_hz: 193.4e12,
+            sweep_bandwidth_hz: 600.0e6,
+            chirp_duration_s: 25.0e-6,
+            power_watts: 0.25,
+            _pad: [0.0; 4],
+        };
+
+        let true_range = 25.0;
+        let true_velocity = 12.5;
+        let (f_up, f_down) = cfg.calculate_beat_frequencies(true_range, true_velocity);
+        let (est_range, est_velocity) = cfg.solve_range_and_velocity(f_up, f_down);
+
+        assert!(
+            (est_range - true_range).abs() < 1e-2,
+            "Range folded due to high optical Doppler: got {est_range}, expected {true_range}"
+        );
+        assert!(
+            (est_velocity - true_velocity).abs() < 1e-2,
+            "Velocity folded due to high optical Doppler: got {est_velocity}, expected {true_velocity}"
+        );
     }
 }
