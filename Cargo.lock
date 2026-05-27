@@ -874,6 +874,7 @@ dependencies = [
  "serde",
  "serde_json",
  "shroud-core",
+ "shroud-validator",
 ]
 
 [[package]]
