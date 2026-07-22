@@ -494,8 +494,30 @@ pub fn register_shroud_types(engine: &mut Engine) {
     );
 
     engine.register_fn(
+        "assert_gt",
+        |a: i64, b: i64| -> Result<(), Box<EvalAltResult>> {
+            if !(a > b) {
+                Err(format!("Assertion failed: expected {a} > {b}").into())
+            } else {
+                Ok(())
+            }
+        },
+    );
+
+    engine.register_fn(
         "assert_lt",
         |a: f64, b: f64| -> Result<(), Box<EvalAltResult>> {
+            if !(a < b) {
+                Err(format!("Assertion failed: expected {a} < {b}").into())
+            } else {
+                Ok(())
+            }
+        },
+    );
+
+    engine.register_fn(
+        "assert_lt",
+        |a: i64, b: i64| -> Result<(), Box<EvalAltResult>> {
             if !(a < b) {
                 Err(format!("Assertion failed: expected {a} < {b}").into())
             } else {
