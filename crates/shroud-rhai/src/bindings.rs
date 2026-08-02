@@ -449,10 +449,18 @@ pub fn register_shroud_types(engine: &mut Engine) {
 
     // Shader validation helper for scenario scripts checking referenced WGSL kernels
     engine.register_fn("validate_wgsl", |path_str: &str| -> bool {
-        let p = Path::new(path_str);
-        match std::fs::read_to_string(p) {
-            Ok(src) => validate_wgsl_source(path_str, &src).is_valid,
-            Err(_) => false,
+        let raw = Path::new(path_str);
+        let resolved = if raw.exists() {
+            Some(raw.to_path_buf())
+        } else {
+            ["..", "../.."]
+                .iter()
+                .map(|prefix| Path::new(prefix).join(raw))
+                .find(|candidate| candidate.exists())
+        };
+        match resolved.and_then(|p| std::fs::read_to_string(p).ok()) {
+            Some(src) => validate_wgsl_source(path_str, &src).is_valid,
+            None => false,
         }
     });
 
