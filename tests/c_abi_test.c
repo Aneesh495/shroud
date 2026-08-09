@@ -13,17 +13,24 @@ int main(void) {
     printf("Shroud Version: %d.%d.%d\n", maj, min, pat);
     assert(maj == 0 && min == 1 && pat == 0);
 
-    /* Test Henyey-Greenstein */
-    float hg = shroud_eval_henyey_greenstein(1.0f, 0.5f);
-    assert(hg > 0.0f);
+    /* Test Henyey-Greenstein phase normalization asymmetry */
+    float hg_fwd = shroud_eval_henyey_greenstein(1.0f, 0.5f);
+    float hg_back = shroud_eval_henyey_greenstein(-1.0f, 0.5f);
+    assert(hg_fwd > hg_back && hg_back > 0.0f);
 
     /* Test Rayleigh phase */
-    float r = shroud_eval_rayleigh_phase(0.0f);
-    assert(r > 0.0f);
+    float r_fwd = shroud_eval_rayleigh_phase(1.0f);
+    float r_perp = shroud_eval_rayleigh_phase(0.0f);
+    assert(fabsf(r_fwd - 2.0f * r_perp) < 1e-5f);
 
     /* Test LWIR radiance */
     float lwir = shroud_eval_lwir_radiance(300.0f);
     assert(lwir > 40.0f && lwir < 70.0f);
+
+    /* Test LiDAR inverse square photon falloff */
+    float p10 = shroud_calculate_lidar_photons(10.0f, 0.8f, 1.0f);
+    float p20 = shroud_calculate_lidar_photons(20.0f, 0.8f, 1.0f);
+    assert(fabsf((p10 / p20) - 4.0f) < 1e-3f);
 
     /* Test Morton 3D encoding */
     uint32_t m0 = shroud_morton_3d(0.0f, 0.0f, 0.0f);
@@ -44,9 +51,13 @@ int main(void) {
     assert(err_buf[0] != '\0');
 
     /* Test Rhai evaluation via C ABI */
-    const char* rhai_code = "let x = 10; let y = 20; x + y;";
+    const char* rhai_code = "let x = 10; let y = 20; assert_close(x + y + 0.0, 30.0, 1e-6);";
     res = shroud_run_rhai_script(rhai_code, err_buf, sizeof(err_buf));
     assert(res == 0);
+
+    const char* rhai_fail = "assert_close(1.0, 5.0, 1e-3);";
+    res = shroud_run_rhai_script(rhai_fail, err_buf, sizeof(err_buf));
+    assert(res == 1);
 
     printf("All C ABI checks PASSED successfully.\n");
     return 0;
